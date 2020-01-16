@@ -2,7 +2,7 @@
 set -o xtrace   # Write all commands first to stderr
 set -o errexit  # Exit the script with error if any of the commands fail
 
-source ${DRIVERS_TOOLS}/.evergreen/orchestration-config.sh
+. ${DRIVERS_TOOLS}/.evergreen/orchestration-config.sh
 
 DL_START=$(date +%s)
 DIR=$(dirname $0)

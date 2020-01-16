@@ -12,7 +12,7 @@ elif [ -f venv/Scripts/activate ]; then
     . venv/Scripts/activate
 fi
 
-source ${DRIVERS_TOOLS}/.evergreen/orchestration-config.sh
+. ${DRIVERS_TOOLS}/.evergreen/orchestration-config.sh
 
 curl --silent --show-error --max-time 600 --fail --request DELETE "$ORCHESTRATION_URL/$ID"
 
