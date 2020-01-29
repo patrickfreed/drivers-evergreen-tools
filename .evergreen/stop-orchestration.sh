@@ -9,4 +9,6 @@ if [ -f venv/bin/activate ]; then
 elif [ -f venv/Scripts/activate ]; then
     . venv/Scripts/activate
 fi
+ps aux | grep mongo
 mongo-orchestration stop
+ps aux | grep mongo

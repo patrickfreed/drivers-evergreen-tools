@@ -35,7 +35,7 @@ elif python -m virtualenv --system-site-packages --never-download venv || virtua
   fi
   # Install from github otherwise mongo-orchestration won't download simplejson
   # with Python 2.6.
-  pip install --upgrade 'git+git://github.com/mongodb/mongo-orchestration@master'
+  pip install --upgrade 'git+git://github.com/patrickfreed/mongo-orchestration@blocking-stop'
   pip freeze
 fi
 cd -
