@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # This script uses the Atlas proxy project's own evergreen launch scripts
 # to build and launch a serverless deployment.  It works directly from
@@ -73,8 +73,8 @@ export MONGO_DIR="$DRIVERS_TOOLS/mongodb/bin"
 export SERVERLESS_MODE=true
 export CLIENTINTERFACE=mongos
 cd main
-./start_test_rs.sh 27000 "proxytest" "donor"
-./start_test_proxy_rs.sh
+bash start_test_rs.sh 27000 "proxytest" "donor"
+bash start_test_proxy_rs.sh
 sleep 5 # Tests fail if we start them too soon after starting mongods
 
 cat <<EOT > proxy-expansion.yml
