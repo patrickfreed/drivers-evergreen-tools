@@ -22,13 +22,12 @@
 # DRIVERS_TOOLS (required) - absolute path to the checked out
 # driver-evergreen-tools repository
 #
-# MONGODB_VERSION - version of MongoDB to download and use. For Atlas
-# Proxy, must be "4.4" or "latest".  Defaults to "4.4".
+# MONGODB_VERSION - version of MongoDB to download and use. Defaults to "latest".
 
 set -o xtrace   # Write all commands first to stderr
 set -o errexit  # Exit the script with error if any of the commands fail
 
-MONGODB_VERSION=${MONGODB_VERSION:-"4.4"}
+MONGODB_VERSION=${MONGODB_VERSION:-"latest"}
 
 ORIG_DIR="$(pwd)"
 
@@ -82,6 +81,8 @@ cat <<EOT > proxy-expansion.yml
 MONGODB_URI: "mongodb://user:pencil@host.local.10gen.cc:9900,host.local.10gen.cc:9910,host.local.10gen.cc:9920/admin"
 SSL: ssl
 AUTH: auth
+TOPOLOGY: sharded_cluster
+SERVERLESS: serverless
 EOT
 
 AP_END=$(date +%s)

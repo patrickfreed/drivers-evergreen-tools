@@ -393,6 +393,26 @@ functions:
           # Don't use ${file} syntax here because evergreen treats it as an empty expansion.
           [ -f "$file" ] && sh $file || echo "$file not available, skipping"
 
+  "run serverless":
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+          MONGODB_VERSION=${VERSION} sh ${DRIVERS_TOOLS}/.evergreen/run-serverless.sh
+    # run-serverless generates expansion file with the MONGODB_URI for the cluster
+    - command: expansions.update
+      params:
+        file: serverless-expansion.yml
+
+  "run serverless tests":
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: "src"
+        script: |
+          ${PREPARE_SHELL}
+          AUTH=${AUTH} SSL=${SSL} MONGODB_URI="${MONGODB_URI}" sh ${PROJECT_DIRECTORY}/.evergreen/run-serverless-tests.sh
+
 pre:
   - func: "fetch source"
   - func: "prepare resources"
@@ -678,6 +698,14 @@ tasks:
             VERSION: "latest"
             TOPOLOGY: "sharded_cluster"
         - func: "run tests"
+
+    - name: "test-latest-serverless"
+      tags: ["latest", "serverless"]
+      commands:
+        - func: "run serverless"
+          vars:
+            VERSION: "latest"
+        - func: "run serverless tests"
 
 # }}}
 
@@ -1095,3 +1123,8 @@ buildvariants:
       # SUSE12 x86_64 is only supported by MongoDB 3.2+
       # vim: set et sw=2 ts=2 :
 
+- matrix_name: "tests-serverless"
+  matrix_spec: {"os-fully-featured": "*"}
+  display_name: "Serverless ${os-fully-featured}"
+  tasks:
+     - name: "test-latest-serverless"
