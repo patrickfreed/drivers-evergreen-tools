@@ -1,7 +1,7 @@
 #!/bin/sh
 #
-# This script uses the Atlas proxy project's own evergreen launch script
-# to build and launch an Atlas proxy for testing.  It works directly from
+# This script uses the Atlas proxy project's own evergreen launch scripts
+# to build and launch a serverless deployment.  It works directly from
 # their master branch, so may fail if they break something.
 #
 # There is no corresponding 'shutdown' script; the Atlas proxy project
@@ -9,12 +9,9 @@
 # so we do the same.
 #
 # The URI is harded coded as:
-# mongodb://user:pencil@host5.local.10gen.cc:9900/admin?replicaSet=benchmark
+# mongodb://user:pencil@host.local.10gen.cc:9900,host.local.10gen.cc:9910,host.local.10gen.cc:9920/admin
 #
 # Connections requires SSL and the CA file is 'main/ca.pem' in the atlasproxy repo.
-#
-# If this fails, check the 'main/test.sh' file in the atlasproxy repo for
-# possible changes.
 #
 # Installation of Go dependencies appears to require a newer git.  1.7 on
 # rhel62 failed, but 2.0 on ubuntu1604 worked.  The atlasproxy project
@@ -26,12 +23,12 @@
 # driver-evergreen-tools repository
 #
 # MONGODB_VERSION - version of MongoDB to download and use. For Atlas
-# Proxy, must be "3.4" or "latest".  Defaults to "3.4".
+# Proxy, must be "4.4" or "latest".  Defaults to "4.4".
 
 set -o xtrace   # Write all commands first to stderr
 set -o errexit  # Exit the script with error if any of the commands fail
 
-MONGODB_VERSION=${MONGODB_VERSION:-"3.4"}
+MONGODB_VERSION=${MONGODB_VERSION:-"4.4"}
 
 ORIG_DIR="$(pwd)"
 
@@ -68,15 +65,24 @@ git clone git@github.com:10gen/atlasproxy.git
 cd atlasproxy
 
 # This section copied from atlasproxy's .evergreen.yml: <<<
-export PATH="/opt/golang/go1.11/bin:$PATH"
-export GOROOT="/opt/golang/go1.11"
+export PATH="/opt/golang/go1.15/bin:$PATH"
+export GOROOT="/opt/golang/go1.15"
 export GOPATH=`pwd`/.gopath
 go version
-./gpm
-export MONGO_DIR="$DRIVERS_TOOLS/mongodb/bin"
-cd main
-./start_test_proxies_and_mtms.sh
 # >>> end of copy
+export MONGO_DIR="$DRIVERS_TOOLS/mongodb/bin"
+export SERVERLESS_MODE=true
+export CLIENTINTERFACE=mongos
+cd main
+./start_test_rs.sh 27000 "proxytest" "donor"
+./start_test_proxy_rs.sh
+sleep 5 # Tests fail if we start them too soon after starting mongods
+
+cat <<EOT > proxy-expansion.yml
+MONGODB_URI: "mongodb://user:pencil@host.local.10gen.cc:9900,host.local.10gen.cc:9910,host.local.10gen.cc:9920/admin"
+SSL: ssl
+AUTH: auth
+EOT
 
 AP_END=$(date +%s)
 
@@ -87,7 +93,7 @@ cat <<EOT >> $DRIVERS_TOOLS/results.json
 {"results": [
   {
     "status": "PASS",
-    "test_file": "AtlasProxy Start",
+    "test_file": "Serverless Start",
     "start": $AP_START,
     "end": $AP_END,
     "elapsed": $AP_ELAPSED
