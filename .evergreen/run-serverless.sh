@@ -77,13 +77,15 @@ bash start_test_rs.sh 27000 "proxytest" "donor"
 bash start_test_proxy_rs.sh
 sleep 5 # Tests fail if we start them too soon after starting mongods
 
-cat <<EOT > serverless-expansion.yml
+cd "$ORIG_DIR"
+cat <<EOF > serverless-expansion.yml
 MONGODB_URI: "mongodb://user:pencil@host.local.10gen.cc:9900,host.local.10gen.cc:9910,host.local.10gen.cc:9920/admin"
 SSL: ssl
 AUTH: auth
 TOPOLOGY: sharded_cluster
 SERVERLESS: serverless
-EOT
+
+EOF
 
 AP_END=$(date +%s)
 
