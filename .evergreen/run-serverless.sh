@@ -84,6 +84,7 @@ SSL: ssl
 AUTH: auth
 TOPOLOGY: sharded_cluster
 SERVERLESS: serverless
+SSL_CA_FILE: "$ORIG_DIR/atlasproxy/main/ca.pem"
 
 EOF
 
